@@ -3,141 +3,112 @@
 import React, { useState, useEffect } from "react";
 
 function SnakeGrid({ width, height }) {
-  // Create a state variable for the grid, 12 x 12 with default value of 0
-  const [grid, setGrid] = useState(Array(height).fill(Array(width).fill(0)));
-  // Create a state variable for the snake, with a random starting position
-  const [snake, setSnake] = useState([
+  const [grid, setGrid] = useState(Array(height).fill(Array(width).fill(0))); // Create 12x12 grid of empty squares (0)
+  const [snake, setSnake] = useState([ // Create snake at start position
     [
-      Math.floor((Math.random() * width) / 2 + width / 4),
+      Math.floor((Math.random() * width) / 2 + width / 4), // Random start position within limited area
       Math.floor((Math.random() * height) / 2 + height / 4),
     ],
   ]);
-  // Create a state variable for the snake direction, with a random starting direction
-  const [direction, setDirection] = useState(Math.floor(Math.random() * 4));
-  // Create a state variable for the food, with a random starting position
-  const [food, setFood] = useState([
+  const [direction, setDirection] = useState(Math.floor(Math.random() * 4)); // Random start direction
+  const [food, setFood] = useState([ // Create food at start position
     Math.floor(Math.random() * width),
     Math.floor(Math.random() * height),
   ]);
-  // Create a state variable for the score, with a default value of 0
-  const [score, setScore] = useState(0);
-  // Create a state variable for the game over, with a default value of false
-  const [gameOver, setGameOver] = useState(false);
+  const [score, setScore] = useState(0); // Set score to 0
+  const [gameOver, setGameOver] = useState(false); // Set gameOver to false
 
-  // Create a function to check if the snake is out of bounds
+
   const checkBounds = () => {
-    // Check if the snake head is out of bounds
+    // Check if snake head is out of bounds
     if (
-      snake[0][0] < 0 ||
-      snake[0][0] >= width ||
-      snake[0][1] < 0 ||
-      snake[0][1] >= height
+      snake[0][0] < 0 || // If snake head X is less than 0
+      snake[0][0] >= width || // If snake head X is greater than or equal to grid width
+      snake[0][1] < 0 || // If snake head Y is less than 0
+      snake[0][1] >= height // If snake head Y is greater than or equal to grid height
     ) {
-      // Set the game over state to true
-      setGameOver(true);
-      return true;
+      setGameOver(true); // Set gameOver to true
+      return true; // Return true, as snake is out of bounds
     }
-    return false;
+    return false; // Return false, as snake is in bounds
   };
 
-  // Create a function to check coordinates of snake and food and return correct background
   const getBackground = (x, y) => {
-    // Check if the coordinates are part of the snake
-    if (snake.some((coord) => coord[0] === x && coord[1] === y)) {
-      // Return the snake background
-      return "bg-foreground-300";
+    // Get background colour for a given square
+    if (snake.some((coord) => coord[0] === x && coord[1] === y)) { // If X and Y coordinates are within the snake array
+      return "bg-foreground-300"; // Return snake colour (Green/Foreground)
     }
-    // Check if the coordinates are food
-    if (x === food[0] && y === food[1]) {
-      // Return the food background
-      return "bg-red-700";
+    if (x === food[0] && y === food[1]) { // If X and Y coordinates are the same as food's X and Y coordinates
+      return "bg-red-700"; // Return food colour (Red)
     }
-    // Return the background for the grid
-    return "bg-background";
+    return "bg-background"; // If not in snake or food, return background colour (Orange)
   };
 
-  // Create a function to build each cube
   const buildCube = (x, y) => {
-    // Return a div with the correct background, also centre text content vertically and horizontally
-    let classNames = [
-      getBackground(x, y),
-      "w-full h-full text-center text-white font-bold text-2xl justify-center rounded",
+    // Build a cube for a given coordinate
+    let classNames = [ // Create array of class names, used to handle styles for cube's div
+      getBackground(x, y), // Get background colour
+      "w-full h-full text-center text-white font-bold text-2xl justify-center rounded", // Add cube's default classnames
     ];
-    // Check if current cube is a snake with classNames
-    if (classNames[0] === "bg-foreground-300") {
-      // get index of block in snake
-      let index = snake.findIndex((coord) => coord[0] === x && coord[1] === y);
-      // check if next index is above current x,y
-      if (
+    if (classNames[0] === "bg-foreground-300") { // If background colour is snake colour (Meaning it is a snake square)
+      let index = snake.findIndex((coord) => coord[0] === x && coord[1] === y); // Find the index of the snake square in the snake array
+      if ( // If the next snake segment is above the current snake segment
         index !== 0 &&
         snake[index - 1][0] === x &&
         snake[index - 1][1] === y - 1
       ) {
-        // add classNames to cube
         classNames.push(
           "shadow-[0_-0.5rem_#6ba743] xl:shadow-[0_-1rem_#6ba743]"
-        );
+        ); // Add shadow above cube (Effectively a top border to link to the previous segment)
       }
-      // check if next index is below current x,y
-      if (
+      if ( // If the next snake segment is below the current snake segment
         index !== 0 &&
         snake[index - 1][0] === x &&
         snake[index - 1][1] === y + 1
       ) {
-        // add classNames to cube
-        classNames.push("shadow-[0_0.5rem_#6ba743] xl:shadow-[0_1rem_#6ba743]");
+        classNames.push(
+            "shadow-[0_0.5rem_#6ba743] xl:shadow-[0_1rem_#6ba743]"
+        ); // Add shadow below cube (Effectively a bottom border to link to the previous segment)
       }
-      // check if next index is left of current x,y
-      if (
+      if ( // If the next snake segment is to the left of the current snake segment
         index !== 0 &&
         snake[index - 1][0] === x - 1 &&
         snake[index - 1][1] === y
       ) {
-        // add classNames to cube
         classNames.push(
           "shadow-[-0.5rem_0_#6ba743] xl:shadow-[-1rem_0_#6ba743]"
-        );
+        ); // Add shadow to the left of cube (Effectively a left border to link to the previous segment)
       }
-      // check if next index is right of current x,y
-      if (
+      if ( // If the next snake segment is to the right of the current snake segment
         index !== 0 &&
         snake[index - 1][0] === x + 1 &&
         snake[index - 1][1] === y
       ) {
-        // add classNames to cube
-        classNames.push("shadow-[0.5rem_0_#6ba743] xl:shadow-[1rem_0_#6ba743]");
-      }
-      // round corners that aren't next to snake
-      if (
-        index !== 0 &&
-        snake[index - 1][0] !== x - 1 &&
-        snake[index - 1][0] !== x + 1 &&
-        snake[index - 1][1] !== y - 1 &&
-        snake[index - 1][1] !== y + 1
-      ) {
-        classNames.push("rounded-lg");
+        classNames.push(
+            "shadow-[0.5rem_0_#6ba743] xl:shadow-[1rem_0_#6ba743]"
+        ); // Add shadow to the right of cube (Effectively a right border to link to the previous segment)
       }
     }
-    return (
+    return ( // Return cube
       <div className={classNames.join(" ")} key={`${x}-${y}`}>
         {snake[0][0] === x && snake[0][1] === y ? score : ""}
       </div>
     );
   };
 
-  // useEffect interval to move the snake every 100ms
+
   useEffect(() => {
+    // useEffect interval to move the snake every (300-score*2)ms
     const interval = setInterval(() => {
-      // Check if the snake is out of bounds
-      if (!checkBounds() && !gameOver) {
-        // Check if the snake has eaten the food
-        if (snake[0][0] === food[0] && snake[0][1] === food[1]) {
-          // Add a new food to the grid that is not in the snakes coordinates list
-          let newPosition = [
+      if (!checkBounds() && !gameOver) { // If snake is not out of bounds and game is not over
+        if (snake[0][0] === food[0] && snake[0][1] === food[1]) { // If snake head is at food
+
+          let newPosition = [ // Create new position for food
             Math.floor(Math.random() * width),
             Math.floor(Math.random() * height),
           ];
-          while (
+
+          while ( // While new position is within snake, generate new position. Stops food from being placed on snake
             snake.some(
               (coord) =>
                 coord[0] === newPosition[0] && coord[1] === newPosition[1]
@@ -146,44 +117,42 @@ function SnakeGrid({ width, height }) {
             newPosition = [
               Math.floor(Math.random() * width),
               Math.floor(Math.random() * height),
-            ];
+            ]; // Generate new position
           }
-          setFood(newPosition);
-          // Add a new segment to the snake
-          if (direction === 0) {
-            setSnake([[snake[0][0], snake[0][1] + 1], ...snake]);
-          } else if (direction === 1) {
-            setSnake([[snake[0][0] + 1, snake[0][1]], ...snake]);
-          } else if (direction === 2) {
-            setSnake([[snake[0][0], snake[0][1] - 1], ...snake]);
-          } else if (direction === 3) {
-            setSnake([[snake[0][0] - 1, snake[0][1]], ...snake]);
+
+          setFood(newPosition); // Set new food position
+
+          if (direction === 0) { // If snake is moving up
+            setSnake([[snake[0][0], snake[0][1] + 1], ...snake]); // Add new snake segment to the top of the snake array
+          } else if (direction === 1) { // If snake is moving right
+            setSnake([[snake[0][0] + 1, snake[0][1]], ...snake]); // Add new snake segment to the right of the snake array
+          } else if (direction === 2) { // If snake is moving down
+            setSnake([[snake[0][0], snake[0][1] - 1], ...snake]); // Add new snake segment to the bottom of the snake array
+          } else if (direction === 3) { // If snake is moving left
+            setSnake([[snake[0][0] - 1, snake[0][1]], ...snake]); // Add new snake segment to the left of the snake array
           }
-          // Add a point to the score
-          setScore(score + 1);
-        } else {
-          if (direction === 0) {
-            // check if snake is going to hit itself
-            if (
+
+          setScore(score + 1); // Increase score by 1
+
+        } else { // If snake head is not at food
+          if (direction === 0) {  // If snake is moving up
+            if ( // If snake head is colliding with snake segment
               snake
                 .slice(1)
                 .some(
                   (coord) =>
                     coord[0] === snake[0][0] && coord[1] === snake[0][1] + 1
                 )
-            ) {
-              // Set the game over state to true
-              setGameOver(true);
-            } else {
-              // Add a new segment to the snake
+            ) { 
+              setGameOver(true); // Game is over
+            } else { // If snake head is not colliding with snake segment
               setSnake([
                 [snake[0][0], snake[0][1] + 1],
                 ...snake.slice(0, snake.length - 1),
-              ]);
+              ]); // Move snake forwards by 1 step
             }
-          } else if (direction === 1) {
-            // check if snake is going to hit itself
-            if (
+          } else if (direction === 1) { // If snake is moving right
+            if ( // If snake head is colliding with snake segment
               snake
                 .slice(1)
                 .some(
@@ -191,18 +160,15 @@ function SnakeGrid({ width, height }) {
                     coord[0] === snake[0][0] + 1 && coord[1] === snake[0][1]
                 )
             ) {
-              // Set the game over state to true
-              setGameOver(true);
-            } else {
-              // Add a new segment to the snake
+              setGameOver(true); // Game is over
+            } else { // If snake head is not colliding with snake segment
               setSnake([
                 [snake[0][0] + 1, snake[0][1]],
                 ...snake.slice(0, snake.length - 1),
-              ]);
+              ]); // Move snake forwards by 1 step
             }
-          } else if (direction === 2) {
-            // check if snake is going to hit itself
-            if (
+          } else if (direction === 2) { // If snake is moving down
+            if ( // If snake head is colliding with snake segment
               snake
                 .slice(1)
                 .some(
@@ -210,18 +176,15 @@ function SnakeGrid({ width, height }) {
                     coord[0] === snake[0][0] && coord[1] === snake[0][1] - 1
                 )
             ) {
-              // Set the game over state to true
-              setGameOver(true);
-            } else {
-              // Add a new segment to the snake
+              setGameOver(true); // Game is over
+            } else { // If snake head is not colliding with snake segment
               setSnake([
                 [snake[0][0], snake[0][1] - 1],
                 ...snake.slice(0, snake.length - 1),
-              ]);
+              ]); // Move snake forwards by 1 step
             }
-          } else if (direction === 3) {
-            // check if snake is going to hit itself
-            if (
+          } else if (direction === 3) { // If snake is moving left
+            if ( // If snake head is colliding with snake segment
               snake
                 .slice(1)
                 .some(
@@ -229,45 +192,45 @@ function SnakeGrid({ width, height }) {
                     coord[0] === snake[0][0] - 1 && coord[1] === snake[0][1]
                 )
             ) {
-              // Set the game over state to true
-              setGameOver(true);
-            } else {
-              // Add a new segment to the snake
+              setGameOver(true); // Game is over
+            } else { // If snake head is not colliding with snake segment
               setSnake([
                 [snake[0][0] - 1, snake[0][1]],
                 ...snake.slice(0, snake.length - 1),
-              ]);
+              ]); // Move snake forwards by 1 step
             }
           }
         }
-      } // make interval decrease with score
-    }, 300 - score * 2);
+      }
+    }, 300 - score * 2); // Move snake every (300-score*2)ms
 
-    return () => clearInterval(interval);
-  }, [direction, snake, score, gameOver]);
+    return () => clearInterval(interval); // Clear interval when component is unmounted
+  }, [direction, snake, score, gameOver]); // Only re-run effect if direction, snake, score, or gameOver changes
 
-  // detect arrow key presses and change direction
   useEffect(() => {
+      // useEffect to listen for arrow key presses
     const handleKeyDown = (e) => {
-      if (!gameOver) {
+        // Function handles arrow key press events
+      if (!gameOver) { // If game is not over
         // 37, Left (3)
         // 38, Up (2)
         // 39, Right (1)
         // 40, Down (0)
-        if (e.keyCode === 37 && direction !== 1) {
-          setDirection(3);
-        } else if (e.keyCode === 38 && direction !== 0) {
-          setDirection(2);
-        } else if (e.keyCode === 39 && direction !== 3) {
-          setDirection(1);
-        } else if (e.keyCode === 40 && direction !== 2) {
-          setDirection(0);
+        if (e.keyCode === 37 && direction !== 1) { // If left arrow key is pressed and snake is not moving right
+          setDirection(3); // Set direction to left
+        } else if (e.keyCode === 38 && direction !== 0) { // If up arrow key is pressed and snake is not moving down
+          setDirection(2); // Set direction to up
+        } else if (e.keyCode === 39 && direction !== 3) { // If right arrow key is pressed and snake is not moving left
+          setDirection(1); // Set direction to right
+        } else if (e.keyCode === 40 && direction !== 2) { // If down arrow key is pressed and snake is not moving up
+          setDirection(0); // Set direction to down
         }
       }
     };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [direction]);
+
+    document.addEventListener("keydown", handleKeyDown); // Listen for arrow key presses
+    return () => document.removeEventListener("keydown", handleKeyDown); // Remove event listener when key is pressed (Would create duplicate listeners otherwise)
+  }, [direction]); // Only re-run effect if direction changes
 
   return (
     <>
@@ -277,37 +240,35 @@ function SnakeGrid({ width, height }) {
         {grid.map((row, rowIndex) => (
           <>{row.map((_, colIndex) => buildCube(colIndex, rowIndex))}</>
         ))}
-        {
-          /* Show modal with button to reload page if game over */
-          gameOver ? (
-            <>
-              <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
-                <div className="relative w-auto my-6 mx-auto max-w-sm">
-                  {/* Game over message */}
-                  <div className="bg-white rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
-                    <div className="flex-auto p-5">
-                      <h1 className="text-2xl font-semibold">Game Over</h1>
-                      <p className="mt-3 text-gray-700">
-                        You scored {score} points.
-                      </p>
-                      <p className="mt-3 text-gray-700">
-                        Press the button below to play again.
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-end p-2 bg-gray-200 rounded-b">
-                      <button
-                        onClick={() => window.location.reload()}
-                        className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                      >
-                        Play Again
-                      </button>
-                    </div>
+        { // If game is over, show modal
+        gameOver ? (
+          <>
+            <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
+              <div className="relative w-auto my-6 mx-auto max-w-sm">
+                {/* Game over message and reload button */}
+                <div className="bg-white rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
+                  <div className="flex-auto p-5">
+                    <h1 className="text-2xl font-semibold">Game Over</h1>
+                    <p className="mt-3 text-gray-700">
+                      You scored {score} points.
+                    </p>
+                    <p className="mt-3 text-gray-700">
+                      Press the button below to play again.
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-end p-2 bg-gray-200 rounded-b">
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    >
+                      Play Again
+                    </button>
                   </div>
                 </div>
               </div>
-            </>
-          ) : null
-        }
+            </div>
+          </>
+        ) : null}
       </div>
     </>
   );

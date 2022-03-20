@@ -3,8 +3,8 @@ import SnakeGrid from './SnakeGrid';
 
 function App() {
 
-  // make started state
-  const [started, setStarted] = useState(false);
+  const [started, setStarted] = useState(false); // If true, the game is running.
+
   return (
     <div className="bg-background h-screen">
       <div className="flex flex-col items-center justify-center h-full">
@@ -17,7 +17,7 @@ function App() {
           </h2>
         </div>
         <div className="w-9/12 md:w-6/12 lg:w-5/12 xl:w-4/12 aspect-square bg-background-light mb-3 rounded">
-          {started ? <SnakeGrid width={12} height={12} /> : (
+          {started ? <SnakeGrid width={12} height={12} /> : ( // if started, show the grid, otherwise show the start button and instructions
             <div className="flex flex-col items-center justify-center">
                 <div className="text-white text-2xl font-mono mt-16 mb-12">
                 A classic snake game on a 12x12 grid.
