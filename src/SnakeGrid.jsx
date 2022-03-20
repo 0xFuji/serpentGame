@@ -2,7 +2,9 @@
 // Import useState hook from react
 import React, { useState, useEffect } from "react";
 
-function SnakeGrid({ width, height }) {
+function SnakeGrid() {
+  const width = 12
+  const height = 12
   const [grid, setGrid] = useState(Array(height).fill(Array(width).fill(0))); // Create 12x12 grid of empty squares (0)
   const [snake, setSnake] = useState([ // Create snake at start position
     [
@@ -235,7 +237,7 @@ function SnakeGrid({ width, height }) {
   return (
     <>
       <div
-        className={`grid gap-1 xl:gap-2  grid-rows-${height} grid-cols-${width} w-full h-full p-3 auto-rows-fr`}
+        className={`grid gap-1 xl:gap-2  grid-rows-12 grid-cols-12 w-full h-full p-3 auto-rows-fr`}
       >
         {grid.map((row, rowIndex) => (
           <>{row.map((_, colIndex) => buildCube(colIndex, rowIndex))}</>
